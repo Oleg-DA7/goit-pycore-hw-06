@@ -4,7 +4,7 @@
 # Name: Клас для зберігання імені контакту. Обов'язкове поле. 
 # Phone: Клас для зберігання номера телефону. Має валідацію формату (10 цифр). (PhoneNumber)
 # Record: Клас для зберігання інформації про контакт, включаючи ім'я та список телефонів. (Contact)
-# AddressBook: Клас для зберігання та управління записами.
+# AddressBook: Клас для зберігання та управління записами. (ContactList)
 
 # Функціональність:
 # AddressBook:Додавання записів.
@@ -29,11 +29,17 @@ class PhoneNumber(Field):
     def __init__(self, phone_number):
         super().__init__
         if re.fullmatch('[0-9]{10}',phone_number) != None:
-            self.phone = phone_number
+            self.value = phone_number
         else:
             print("Enter the correct phone number!")
     def __str__(self):
-        return f'Phone number - {self.phone}'
+        return f'Phone number - {self.value}'
+    
+class ContactName(Field):
+    def __init__(self, name):
+        super().__init__
+    def __str__(self):
+        return f'{self.name}'
 
 class Contact():
     def __init__(self, args):
@@ -41,12 +47,12 @@ class Contact():
         self.phones = []
 
     def __str__(self):        
-        return f'Contact name: {self.name}, phones: {[p.phone for p in self.phones]}'
+        return f'Contact name: {self.name}, phones: {[p.value for p in self.phones]}'
     
     @error_decorator(default_result=None)    
     def add_phone(self, args): # Додавання телефонів до контакту
         for i in self.phones:
-            if i.phone == args[1]:
+            if i.value == args[1]:
                 print(f'This number {args[1]} already exist in contact: {self.name}') 
                 return None
         self.phones.append(PhoneNumber(args[1]))
@@ -67,10 +73,10 @@ class Contact():
     def change_phone(self, args): # Редагування телефонів - зміна номеру на інший
         found = False
         for i in self.phones:
-            if i.phone == args[1]:
+            if i.value == args[1]:
                 found = True
-                i.phone = args[2]
-                print(f'Phone number {args[1]} changed to {i.phone} in contact: {self.name}') 
+                i.value = args[2]
+                print(f'Phone number {args[1]} changed to {i.value} in contact: {self.name}') 
         if not found:
             print(f'Number {args[1]} not found in contact: {self.name}') 
         return None
@@ -79,7 +85,7 @@ class Contact():
     def find_phone(self, args): # Пошук телефону
         found = False
         for i in self.phones:
-            if i.phone == args[1]:
+            if i.value == args[1]:
                 found = True
         if found: 
             return f'{args[1]} found in contact: {self.name}'
