@@ -7,10 +7,12 @@ def error_decorator(default_result=None):
             try:
                 return func(*args, **kwargs)
             except ValueError:
-                print("Give me name and phone please.")
+                print("Give me correct command please.")
                 return default_result                
-            except (KeyError, IndexError, TypeError):            
+            except (KeyError, TypeError):             
                 print("Enter the argument for the command")
+            except (IndexError, AttributeError):            
+                print("Item not foound")
                 return default_result
         return inner
     return decorator

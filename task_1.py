@@ -15,39 +15,107 @@
 # Редагування телефонів.
 # Пошук телефону.
 
+import re
 from decorators import error_decorator
 
-@error_decorator(default_result=None)
+
+class PhoneNumber:
+    def __init__(self, phone_number):
+        self.phone = None
+        if re.fullmatch('[0-9]{10}',phone_number) != None:
+            self.phone = phone_number
+        else:
+            print("Enter the correct phone number!")
+    def __str__(self):
+        return f'Phone number - {self.phone}'
+
+
 class Contact():
     def __init__(self, args):
         self.name = args[0]
-        self.phone = args[1]
-    def __str__(self):
-        return f'Contact name: {self.name}, phone: {self.phone}'
+        self.phones = []
 
+    def __str__(self):        
+        return f'Contact name: {self.name}, phones: {[p.phone for p in self.phones]}'
+    
+    @error_decorator(default_result=None)    
+    def add_phone(self, args): # Додавання телефонів до контакту
+        for i in self.phones:
+            if i.phone == args[1]:
+                print(f'This number {args[1]} already exist in contact: {self.name}') 
+                return None
+        self.phones.append(PhoneNumber(args[1]))
+
+    @error_decorator(default_result=None)  
+    def del_phone(self, args): # Видалення телефону у контакта
+        found = False
+        for i in self.phones:
+            if i.phone == args[1]:
+                found = True
+                self.phones.remove(i)
+                print(f'Number {args[1]} deleted in contact: {self.name}') 
+        if not found:
+            print(f'Number {args[1]} not found in contact: {self.name}') 
+        return None
+    
+    @error_decorator(default_result=None)          
+    def change_phone(self, args): # Редагування телефонів - зміна номеру на інший
+        found = False
+        for i in self.phones:
+            if i.phone == args[1]:
+                found = True
+                i.phone = args[2]
+                print(f'Phone number {args[1]} changed to {i.phone} in contact: {self.name}') 
+        if not found:
+            print(f'Number {args[1]} not found in contact: {self.name}') 
+        return None
+    
+    @error_decorator(default_result=None)  
+    def find_phone(self, args): # Пошук телефону
+        found = False
+        for i in self.phones:
+            if i.phone == args[1]:
+                found = True
+        if found: 
+            return f'{args[1]} found in contact: {self.name}'
+        else: 
+            return f'{args[1]} not found in contact: {self.name}'
+            
 
 class ContactList():
     def __init__(self):
         self.contacts = []    
 
-    @error_decorator(default_result=None)
+    @error_decorator(default_result = None)
     def add_contact(self, contact):
         self.contacts.append(contact)
         return (f'{contact} added.')
+    
     def all_contacts(self):
         for i in self.contacts: 
             print(f'{i}')
 
-    @error_decorator(default_result=None)
-    def get_phone(self, args):
+    @error_decorator(default_result = None)
+    def get_contact(self, args): 
         name = args[0]
-        result = ''
+        result = None
         for i in self.contacts:
             if i.name == name: 
-                result += f'Contact {i.name} phone is {i.phone} \n'
-        if result == '': result = 'Phone not found'
+                result = i
+        if result == None : print(f'Contact {name} not found !')
         return result
-    
+
+    @error_decorator(default_result = None)
+    def del_contact(self, args): 
+        found = False
+        name = args[0]
+        for i in self.contacts:
+            if i.name == name: 
+                found = True
+                self.contacts.remove(i)
+                print(f'Contact {name} deleted')
+        if not found: print(f'Contact {name} not found !')
+
     @error_decorator(default_result=None)
     def change_contact(self, args):
         name = args[0]
@@ -66,7 +134,7 @@ def parse_input(user_input):
     return cmd, *args
 
 def main():
-    contacts = ContactList()
+    cl = ContactList()
     print("Welcome to the assistant bot!")
     while True:
          user_input = input("Enter a command: ")
@@ -77,20 +145,43 @@ def main():
                 break
             case "hello":
                 print("How can I help you?")
+
+# ContactList command -------------------------------------
+            case "del":                
+                cl.del_contact(args)  
             case "add":
-                contact = Contact(args)
-                if contact != None:
-                    print(contacts.add_contact(contact))                                  
+                c = Contact(args)
+                if c != None:
+                    print(cl.add_contact(c))  
             case "change":
-                result = contacts.change_contact(args)                 
+                result = cl.change_contact(args)                 
                 if result != None:
-                    print(result)
-            case "phone":
-                result = contacts.get_phone(args)
+                    print(result)         
+            case "find":
+                result = cl.get_contact(args)                 
                 if result != None:
-                    print(result)
+                    print(result)   
             case "all":
-                contacts.all_contacts()
+                cl.all_contacts()           
+
+# Contact command -----------------------------------------
+            case "add_phone":
+                c = cl.get_contact(args)
+                if c != None:
+                    c.add_phone(args)    
+            case "del_phone":
+                c = cl.get_contact(args)
+                if c != None:
+                    c.del_phone(args)     
+            case "change_phone":
+                c = cl.get_contact(args)
+                if c != None:
+                    c.change_phone(args)                                
+            case "find_phone":
+                c = cl.get_contact(args)
+                if c != None:
+                    print(c.find_phone(args))
+
 
 
 if __name__ == "__main__":
