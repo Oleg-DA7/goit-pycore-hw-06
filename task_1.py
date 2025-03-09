@@ -1,9 +1,9 @@
 # Сутності:
 
 # Field: Базовий клас для полів запису.
-# Name: Клас для зберігання імені контакту. Обов'язкове поле.
-# Phone: Клас для зберігання номера телефону. Має валідацію формату (10 цифр).
-# Record: Клас для зберігання інформації про контакт, включаючи ім'я та список телефонів.
+# Name: Клас для зберігання імені контакту. Обов'язкове поле. 
+# Phone: Клас для зберігання номера телефону. Має валідацію формату (10 цифр). (PhoneNumber)
+# Record: Клас для зберігання інформації про контакт, включаючи ім'я та список телефонів. (Contact)
 # AddressBook: Клас для зберігання та управління записами.
 
 # Функціональність:
@@ -18,17 +18,22 @@
 import re
 from decorators import error_decorator
 
+class Field:
+    def __init__(self, value):
+        self.value = value
 
-class PhoneNumber:
+    def __str__(self):
+        return str(self.value)
+
+class PhoneNumber(Field):
     def __init__(self, phone_number):
-        self.phone = None
+        super().__init__
         if re.fullmatch('[0-9]{10}',phone_number) != None:
             self.phone = phone_number
         else:
             print("Enter the correct phone number!")
     def __str__(self):
         return f'Phone number - {self.phone}'
-
 
 class Contact():
     def __init__(self, args):
@@ -118,12 +123,10 @@ class ContactList():
 
     @error_decorator(default_result=None)
     def change_contact(self, args):
-        name = args[0]
-        phone = args[1]
-        result = 'Phone not found'
+        result = 'Contact not found'
         for i in self.contacts:
-            if i.name == name: 
-                i.phone = phone
+            if i.name == args[0]: 
+                i.name = args[1]
                 result = f'Contact updated to {i}'
         return result
 
