@@ -27,9 +27,8 @@ class Field:
 
 class PhoneNumber(Field):
     def __init__(self, phone_number):
-        super().__init__
-        if re.fullmatch('[0-9]{10}',phone_number) != None:
-            self.value = phone_number
+        if re.fullmatch('[0-9]{10}', phone_number) != None:
+            super().__init__(phone_number)
         else:
             print("Enter the correct phone number!")
     def __str__(self):
@@ -37,23 +36,23 @@ class PhoneNumber(Field):
     
 class ContactName(Field):
     def __init__(self, name):
-        super().__init__
+        super().__init__(name)
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.value}'
 
 class Contact():
     def __init__(self, args):
-        self.name = args[0]
+        self.name = ContactName(args[0])
         self.phones = []
 
     def __str__(self):        
-        return f'Contact name: {self.name}, phones: {[p.value for p in self.phones]}'
+        return f'Contact name: {self.name.value}, phones: {[p.value for p in self.phones]}'
     
     @error_decorator(default_result=None)    
     def add_phone(self, args): # Додавання телефонів до контакту
         for i in self.phones:
             if i.value == args[1]:
-                print(f'This number {args[1]} already exist in contact: {self.name}') 
+                print(f'This number {args[1]} already exist in contact: {self.name.value}') 
                 return None
         self.phones.append(PhoneNumber(args[1]))
 
@@ -64,9 +63,9 @@ class Contact():
             if i.phone == args[1]:
                 found = True
                 self.phones.remove(i)
-                print(f'Number {args[1]} deleted in contact: {self.name}') 
+                print(f'Number {args[1]} deleted in contact: {self.name.value}') 
         if not found:
-            print(f'Number {args[1]} not found in contact: {self.name}') 
+            print(f'Number {args[1]} not found in contact: {self.name.value}') 
         return None
     
     @error_decorator(default_result=None)          
@@ -76,9 +75,9 @@ class Contact():
             if i.value == args[1]:
                 found = True
                 i.value = args[2]
-                print(f'Phone number {args[1]} changed to {i.value} in contact: {self.name}') 
+                print(f'Phone number {args[1]} changed to {i.value} in contact: {self.name.value}') 
         if not found:
-            print(f'Number {args[1]} not found in contact: {self.name}') 
+            print(f'Number {args[1]} not found in contact: {self.name.value}') 
         return None
     
     @error_decorator(default_result=None)  
@@ -88,9 +87,9 @@ class Contact():
             if i.value == args[1]:
                 found = True
         if found: 
-            return f'{args[1]} found in contact: {self.name}'
+            return f'{args[1]} found in contact: {self.name.value}'
         else: 
-            return f'{args[1]} not found in contact: {self.name}'
+            return f'{args[1]} not found in contact: {self.name.value}'
             
 
 class ContactList():
@@ -111,7 +110,7 @@ class ContactList():
         name = args[0]
         result = None
         for i in self.contacts:
-            if i.name == name: 
+            if i.name.value == name: 
                 result = i
         if result == None : print(f'Contact {name} not found !')
         return result
@@ -121,7 +120,7 @@ class ContactList():
         found = False
         name = args[0]
         for i in self.contacts:
-            if i.name == name: 
+            if i.name.value == name: 
                 found = True
                 self.contacts.remove(i)
                 print(f'Contact {name} deleted')
@@ -131,8 +130,8 @@ class ContactList():
     def change_contact(self, args):
         result = 'Contact not found'
         for i in self.contacts:
-            if i.name == args[0]: 
-                i.name = args[1]
+            if i.name.value == args[0]: 
+                i.name.value = args[1]
                 result = f'Contact updated to {i}'
         return result
 
